@@ -1,41 +1,29 @@
-const redis = require('redis');
-const http = require('http');
+const Broker = require('rascal').BrokerAsPromised;
+const config = require('./config');
 
-const hostname = '0.0.0.0';
-const port = 7017;
-const redisHost = 'localhost';
-
-const server = http.createServer(answer);
-let client = null;
-let turno = 0;
-
-function answer(request, response) {
-  const paths = request.url.split('/');
-  if (paths.length < 3 || paths[0] !== '' || paths[1] != 'turno') {
-    response.statusCode = 400;
-    response.end(
-      JSON.stringify({ error: `Invalid URL ${request.url}` }, null, '\t')
-    );
-    return;
-  }
-  const id = paths[2];
-  getResult(id)
-    .then((result) => {
-      response.statusCode = 200;
-      response.setHeader('Content-Type', 'application/json');
-      response.end(JSON.stringify(result, null, '\t'));
+const rascal_listening = async () => {
+  const broker = await Broker.create(config);
+  broker.on('error', console.error);
+  const subscription = await broker.subscribe('turnomatic-queue');
+  subscription
+    .on('message', async (message, content, ackOrNack) => {
+      try {
+        const { body } = message;
+        console.log(body);
+        ackOrNack();
+      } catch (err) {
+        ackOrNack(err, { strategy: 'republish', immediateNack: true });
+      }
     })
-    .catch((error) => {
-      response.statusCode = 500;
-      response.end(JSON.stringify({ error }));
+    .on('error', (err, message, ackOrNack) => {
+      ackOrNack(err, { strategy: 'republish', immediateNack: true });
+    })
+    .on('invalid_content', (err, message, ackOrNack) => {
+      ackOrNack(err, { strategy: 'republish', immediateNack: true });
     });
-}
+  console.log('broker created!');
+};
 
-async function getResult(id) {
-  turno += 1;
-  return { id, turno };
-}
-
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+rascal_listening()
+  .then(() => console.log('Rascal listening...'))
+  .catch((err) => console.log('Rascal error: ' + err.message));
