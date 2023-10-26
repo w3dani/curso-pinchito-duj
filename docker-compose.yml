@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  turnomatic_redis:
+    container_name: 'turnomatic_redis'
+    image: 'redis:7.2.2-alpine'
+    ports:
+      - '6379:6379'
+  turnomatic_rabbitmq:
+    container_name: 'turnomatic_rabbitmq'
+    image: 'rabbitmq:3.12.7-management-alpine'
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+  turnomatic_workers:
+    container_name: 'turnomatic_worker'
+    build:
+      context: './turnomatic-worker'
+      dockerfile: './turnomatic-worker/Dockerfile'
+    depends_on:
+      - 'turnomatic_redis'
+      - 'turnomatic_rabbitmq'
+    environment:
+      - 'REDIS_HOST=turnomatic_redis'
+      - 'RABBITMQ_HOST=turnomatic_rabbitmq'
+    deploy:
+      mode: 'replicated'
+      replicas: 2
+
+  turnomatic_handler:
+    container_name: 'turnomatic_handler'
+    build:
+      context: './turnomatic-handler'
+      dockerfile: './turnomatic-handler/Dockerfile'
+
+
