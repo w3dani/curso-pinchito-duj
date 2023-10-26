@@ -1,6 +1,13 @@
 const Broker = require('rascal').BrokerAsPromised;
 const config = require('./config');
 const uuid = require('uuid');
+const redis = require('redis');
+
+// Crea una instancia del cliente Redis
+const client = redis.createClient({
+  host: 'localhost',
+  port: 6379,
+});
 
 const publish_turnomatic_result = async (broker, message) => {
   const publication = await broker.publish('turnomatic-response', message);
