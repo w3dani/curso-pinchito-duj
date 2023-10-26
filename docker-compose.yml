@@ -22,7 +22,7 @@ services:
       - 'turnomatic_rabbitmq'
     environment:
       - 'REDIS_HOST=turnomatic_redis'
-      - 'RABBITMQ_HOST=turnomatic_rabbitmq'
+      - 'RABBITMQ_HOST=amqp://turnomatic_rabbitmq'
       - 'RABBITMQ_USER=guest'
       - 'RABBITMQ_PASS=guest'
       - 'NODE_ENV=production'
