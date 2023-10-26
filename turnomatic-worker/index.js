@@ -3,11 +3,13 @@ const config = require('./config');
 const uuid = require('uuid');
 const redis = require('redis');
 
+const redisConf = {
+  host: process.env.REDIS_HOST,
+  port: 6397,
+}
+
 // Crea una instancia del cliente Redis
-const client = redis.createClient({
-  host: 'localhost',
-  port: 6379,
-});
+const client = redis.createClient(redisConf);
 
 const publish_turnomatic_result = async (broker, message) => {
   const publication = await broker.publish('turnomatic-response', message);

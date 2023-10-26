@@ -3,12 +3,20 @@ const config = require('./config');
 const fastify = require('fastify')({
     logger: true
 });
+
+let broker;
+
+const publish_turnomatic_request = async ({ group }) => {
+    const publication = await broker.publish('turnomatic-queue', { group });
+    publication.on('error', console.error);
+};
+
 const rascal_listening = async () => {
-    const broker = await Broker.create(config);
+    broker = await Broker.create(config);
     broker.on('error', (err) => {
         console.error(err)
     });
-    const subscription = await broker.subscribe('turnomatic-response');
+    const subscription = await broker.subscribe('turnomatic-response-queue');
     subscription
         .on('message', async (message, content, ackOrNack) => {
             try {
@@ -30,6 +38,7 @@ const rascal_listening = async () => {
 
 fastify.get('/turn/:group', (request, reply) => {
     const { group } = request.params
+    publish_turnomatic_request({ group })
     reply.send({ turn: `Your turn is 0 for group ${group}` })
 })
 
