@@ -2,8 +2,9 @@ const fastify = require('fastify')({
     logger: true
 })
   
-fastify.get('/turno/:group', function (request, reply) {
-    reply.send({ hello: 'world' })
+fastify.get('/turn/:group', (request, reply) => {
+    const { group } = request.params
+    reply.send({ turn: `Your turn is 0 for group ${group}` })
 })
 
 // Run the server!
