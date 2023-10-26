@@ -42,6 +42,7 @@ services:
     deploy:
       mode: 'replicated'
       replicas: 2
+    restart: "always"
 
   turnomatic_handler:
     container_name: 'turnomatic_handler'
