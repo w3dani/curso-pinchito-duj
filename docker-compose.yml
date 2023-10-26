@@ -33,6 +33,8 @@ services:
     build:
       context: './turnomatic-handler'
       dockerfile: 'Dockerfile'
+    ports:
+      - '3000:3000'
     depends_on:
       - 'turnomatic_redis'
       - 'turnomatic_rabbitmq'
