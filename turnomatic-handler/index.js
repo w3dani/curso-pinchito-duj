@@ -8,7 +8,7 @@ fastify.get('/turn/:group', (request, reply) => {
 })
 
 // Run the server!
-fastify.listen({ port: 3000 }, function (err, address) {
+fastify.listen(3000, '0.0.0.0',  err => {
     if (err) {
       fastify.log.error(err)
       process.exit(1)
