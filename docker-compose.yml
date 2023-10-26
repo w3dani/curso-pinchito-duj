@@ -51,9 +51,13 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - 'turnomatic_redis'
-      - 'turnomatic_rabbitmq'
+      turnomatic_rabbitmq:
+        condition: service_healthy
+      turnomatic_redis:
+        condition: service_healthy
     environment:
-      - 'RABBITMQ_HOST=turnomatic_rabbitmq'
+      - 'RABBITMQ_HOST=amqp://turnomatic_rabbitmq'
+      - 'RABBITMQ_USER=guest'
+      - 'RABBITMQ_PASS=guest'
       - 'NODE_ENV=production'
 

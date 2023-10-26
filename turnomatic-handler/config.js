@@ -7,16 +7,16 @@ module.exports = {
             },
             "exchanges": ["turnomatic"],
             "queues": ["turnomatic-queue", "turnomatic-response-queue"],
-            "bindings": ["turnomatic[turnomatic-response-key] -> turnomatic-response-queue"],
+            "bindings": ["turnomatic[turnomatic-queue-key] -> turnomatic-queue"],
             "publications": {
-                "turnomatic-response": {
+                "turnomatic-queue": {
                     "exchange": "turnomatic",
-                    "routingKey": "turnomatic-response-key"
+                    "routingKey": "turnomatic-queue-key"
                 }
             },
             "subscriptions": {
-                "turnomatic-queue": {
-                    "queue": "turnomatic-queue",
+                "turnomatic-response": {
+                    "queue": "turnomatic-response",
                     "prefetch": 3
                 }
             }
