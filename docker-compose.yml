@@ -12,17 +12,18 @@ services:
     ports:
       - '5672:5672'
       - '15672:15672'
+
   turnomatic_workers:
-    container_name: 'turnomatic_worker'
     build:
       context: './turnomatic-worker'
-      dockerfile: './turnomatic-worker/Dockerfile'
+      dockerfile: 'Dockerfile'
     depends_on:
       - 'turnomatic_redis'
       - 'turnomatic_rabbitmq'
     environment:
       - 'REDIS_HOST=turnomatic_redis'
       - 'RABBITMQ_HOST=turnomatic_rabbitmq'
+      - 'NODE_ENV=production'
     deploy:
       mode: 'replicated'
       replicas: 2
@@ -31,6 +32,11 @@ services:
     container_name: 'turnomatic_handler'
     build:
       context: './turnomatic-handler'
-      dockerfile: './turnomatic-handler/Dockerfile'
-
+      dockerfile: 'Dockerfile'
+    depends_on:
+      - 'turnomatic_redis'
+      - 'turnomatic_rabbitmq'
+    environment:
+      - 'RABBITMQ_HOST=turnomatic_rabbitmq'
+      - 'NODE_ENV=production'
 
