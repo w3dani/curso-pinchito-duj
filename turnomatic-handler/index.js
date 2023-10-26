@@ -5,6 +5,7 @@ const fastify = require('fastify')({
 });
 
 let broker;
+const promisesMap = {};
 
 const publish_turnomatic_request = async ({ group }) => {
     const publication = await broker.publish('turnomatic-queue', { group });
@@ -20,8 +21,11 @@ const rascal_listening = async () => {
     subscription
         .on('message', async (message, content, ackOrNack) => {
             try {
-                const {body} = message;
-                console.log(body)
+                console.log(content)
+                const { id, group, turn } = content;
+                const returnFn = promisesMap[group];
+                returnFn(turn);
+                promisesMap[group] = null;
                 ackOrNack();
             } catch (err) {
                 ackOrNack(err, {strategy: 'republish', immediateNack: true})
@@ -35,11 +39,11 @@ const rascal_listening = async () => {
         })
     console.log('broker created!')
 }
-
 fastify.get('/turn/:group', (request, reply) => {
     const { group } = request.params
+    promisesMap[group] = (turn) => reply.send({turn: `Your turn is 0 for group ${turn}`});
     publish_turnomatic_request({ group })
-    reply.send({ turn: `Your turn is 0 for group ${group}` })
+
 })
 
 // Run the server!

@@ -35,15 +35,8 @@ const rascal_listening = async () => {
                 console.log('worker handling message');
                 const {group} = content;
                 const newUUID = uuid.v4();
-                const counter = client.incr(group, (err, reply) => {
-                    if (err) {
-                        console.error('Error al guardar en Redis:', err);
-                    } else {
-                        console.log('Entrada guardada en Redis:', reply);
-                        publish_turnomatic_result(broker, {id: newUUID, group, turn: counter});
-                    }
-                });
-
+                const counter = await client.incr(group);
+                await publish_turnomatic_result(broker, {id: newUUID, group, turn: counter});
                 ackOrNack();
             } catch (err) {
                 ackOrNack(err, {strategy: 'republish', immediateNack: true});
