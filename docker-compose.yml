@@ -56,6 +56,8 @@ services:
       turnomatic_redis:
         condition: service_healthy
     environment:
-      - 'RABBITMQ_HOST=turnomatic_rabbitmq'
+      - 'RABBITMQ_HOST=amqp://turnomatic_rabbitmq'
+      - 'RABBITMQ_USER=guest'
+      - 'RABBITMQ_PASS=guest'
       - 'NODE_ENV=production'
 
