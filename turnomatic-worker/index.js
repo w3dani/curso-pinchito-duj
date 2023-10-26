@@ -19,6 +19,7 @@ const publish_turnomatic_result = async (broker, message) => {
 const rascal_listening = async () => {
   const broker = await Broker.create(config);
   broker.on('error', console.error);
+  await client.connect()
   const subscription = await broker.subscribe('turnomatic-queue');
   subscription
     .on('message', async (message, content, ackOrNack) => {
@@ -34,7 +35,6 @@ const rascal_listening = async () => {
         });
         await publish_turnomatic_result(broker, { id: newUUID, turn: counter });
         ackOrNack();
-        client.quit();
       } catch (err) {
         ackOrNack(err, { strategy: 'republish', immediateNack: true });
       }
@@ -50,4 +50,7 @@ const rascal_listening = async () => {
 
 rascal_listening()
   .then(() => console.log('Rascal listening...'))
-  .catch((err) => console.log('Rascal error: ' + err.message));
+  .catch((err) => {
+    console.log('Rascal error: ' + err.message);
+    process.exit(1)
+  });
