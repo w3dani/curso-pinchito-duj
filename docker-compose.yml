@@ -6,20 +6,33 @@ services:
     image: 'redis:7.2.2-alpine'
     ports:
       - '6379:6379'
+    healthcheck:
+      test: [ "CMD", "redis-cli","ping" ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+
   turnomatic_rabbitmq:
     container_name: 'turnomatic_rabbitmq'
     image: 'rabbitmq:3.12.7-management-alpine'
     ports:
       - '5672:5672'
       - '15672:15672'
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 10s
+      retries: 3
 
   turnomatic_workers:
     build:
       context: './turnomatic-worker'
       dockerfile: 'Dockerfile'
     depends_on:
-      - 'turnomatic_redis'
-      - 'turnomatic_rabbitmq'
+        turnomatic_rabbitmq:
+          condition: service_healthy
+        turnomatic_redis:
+          condition: service_healthy
     environment:
       - 'REDIS_HOST=turnomatic_redis'
       - 'RABBITMQ_HOST=amqp://turnomatic_rabbitmq'
