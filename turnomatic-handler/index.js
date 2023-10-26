@@ -1,12 +1,13 @@
 const Broker = require('rascal').BrokerAsPromised;
+const config = require('./config');
 const fastify = require('fastify')({
     logger: true
 });
-const config = require('./config');
-
 const rascal_listening = async () => {
     const broker = await Broker.create(config);
-    broker.on('error', console.error);
+    broker.on('error', (err) => {
+        console.error(err)
+    });
     const subscription = await broker.subscribe('turnomatic-response');
     subscription
         .on('message', async (message, content, ackOrNack) => {
