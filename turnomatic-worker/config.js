@@ -6,7 +6,14 @@ module.exports = {
                 "url": process.env.RABBITMQ_HOST,
             },
             "exchanges": ["turnomatic"],
-            "queues": ["turnomatic-queue"],
+            "queues": ["turnomatic-queue", "turnomatic-response-queue"],
+            "bindings": ["turnomatic[turnomatic-response-key] -> turnomatic-response-queue"],
+            "publications": {
+                "turnomatic-response": {
+                    "exchange": "turnomatic",
+                    "routingKey": "turnomatic-response-key"
+                }
+            },
             "subscriptions": {
                 "turnomatic-queue": {
                     "queue": "turnomatic-queue",
